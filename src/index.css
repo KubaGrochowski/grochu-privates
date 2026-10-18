@@ -1100,12 +1100,6 @@ button.tile:hover {
   color: var(--ink-2);
 }
 
-.code-input {
-  font-family: var(--mono);
-  font-size: 22px !important;
-  letter-spacing: 0.3em;
-  text-align: center;
-}
 
 .login-error {
   margin: 0;

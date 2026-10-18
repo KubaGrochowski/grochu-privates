@@ -16,7 +16,7 @@ Lokalnie dane zapisują się tylko w przeglądarce.
 ## Hosting i synchronizacja
 
 - **GitHub Pages** — publikacja przez GitHub Actions (`.github/workflows/deploy.yml`).
-- **Supabase** — logowanie kodem z e-maila i wspólny stan telefon ↔ komputer
+- **Supabase** — logowanie e-mailem i hasłem (raz na urządzenie) i wspólny stan telefon ↔ komputer
   (tabela `app_state` z Row Level Security, schemat w `supabase/schema.sql`).
   Adres i klucz publiczny (anon) podaje się w zmiennych `VITE_SUPABASE_URL` i `VITE_SUPABASE_ANON_KEY`.
   Bez nich aplikacja działa lokalnie, a dane zostają w przeglądarce.

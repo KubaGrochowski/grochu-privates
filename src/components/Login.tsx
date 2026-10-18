@@ -1,42 +1,27 @@
 import { motion } from 'motion/react'
-import { ArrowLeft, Lock } from 'lucide-react'
+import { Lock } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 
 /**
- * Logowanie kodem z e-maila (OTP). Kod, a nie link — na iPhonie aplikacja z ekranu
- * początkowego ma osobną pamięć od Safari, więc link zalogowałby Safari, nie aplikację.
- * Nowych kont nie da się tu założyć (shouldCreateUser: false).
+ * Logowanie e-mailem i hasłem — raz na urządzenie, potem sesja jest zapamiętana.
+ * Konta zakłada się tylko w panelu Supabase (rejestracja jest wyłączona).
+ * Pola mają autocomplete, więc iPhone i przeglądarka zapamiętają hasło.
  */
 export function Login() {
   const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
-  const [step, setStep] = useState<'email' | 'code'>('email')
+  const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const sendCode = async (e: FormEvent) => {
+  const signIn = async (e: FormEvent) => {
     e.preventDefault()
-    if (!supabase || !email.trim()) return
+    if (!supabase || !email.trim() || !password) return
     setBusy(true)
     setError(null)
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { shouldCreateUser: false },
-    })
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
     setBusy(false)
-    if (error) setError('Nie udało się wysłać kodu. Sprawdź adres e-mail i spróbuj ponownie.')
-    else setStep('code')
-  }
-
-  const verify = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!supabase || code.trim().length < 6) return
-    setBusy(true)
-    setError(null)
-    const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' })
-    setBusy(false)
-    if (error) setError('Kod jest nieprawidłowy albo wygasł.')
+    if (error) setError('Nieprawidłowy e-mail lub hasło.')
   }
 
   return (
@@ -54,58 +39,34 @@ export function Login() {
           Grochu Privates<span className="accent">.</span>
         </h1>
 
-        {step === 'email' ? (
-          <form className="login-form" onSubmit={sendCode}>
-            <p className="login-lede">Zaloguj się, żeby zobaczyć swoje sprawy.</p>
-            <label className="field">
-              <span>E-mail</span>
-              <input
-                type="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="twoj@email.pl"
-              />
-            </label>
-            <button type="submit" className="btn primary" disabled={busy || !email.trim()}>
-              {busy ? 'Wysyłam…' : 'Wyślij kod'}
-            </button>
-          </form>
-        ) : (
-          <form className="login-form" onSubmit={verify}>
-            <p className="login-lede">
-              Wysłaliśmy kod na <b>{email}</b>. Wpisz go poniżej.
-            </p>
-            <label className="field">
-              <span>Kod z e-maila</span>
-              <input
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                autoFocus
-                maxLength={10}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                placeholder="123456"
-                className="code-input"
-              />
-            </label>
-            <button type="submit" className="btn primary" disabled={busy || code.length < 6}>
-              {busy ? 'Sprawdzam…' : 'Zaloguj'}
-            </button>
-            <button
-              type="button"
-              className="btn ghost"
-              onClick={() => {
-                setStep('email')
-                setCode('')
-                setError(null)
-              }}
-            >
-              <ArrowLeft size={15} /> Inny e-mail
-            </button>
-          </form>
-        )}
+        <form className="login-form" onSubmit={signIn}>
+          <p className="login-lede">Zaloguj się, żeby zobaczyć swoje sprawy.</p>
+          <label className="field">
+            <span>E-mail</span>
+            <input
+              type="email"
+              name="email"
+              autoComplete="username"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="twoj@email.pl"
+            />
+          </label>
+          <label className="field">
+            <span>Hasło</span>
+            <input
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+          <button type="submit" className="btn primary" disabled={busy || !email.trim() || !password}>
+            {busy ? 'Loguję…' : 'Zaloguj'}
+          </button>
+        </form>
 
         {error && (
           <motion.p className="login-error" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
