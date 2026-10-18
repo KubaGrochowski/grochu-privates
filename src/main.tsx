@@ -1,0 +1,35 @@
+import { StrictMode, useEffect, useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+import { Login } from './components/Login'
+import { startCloud } from './lib/cloud'
+import { supabase } from './lib/supabase'
+
+/** Bez Supabase: aplikacja lokalna. Z Supabase: najpierw logowanie, potem synchronizacja. */
+function Root() {
+  const [auth, setAuth] = useState<'loading' | 'out' | 'in'>(supabase ? 'loading' : 'in')
+
+  useEffect(() => {
+    if (!supabase) {
+      void startCloud()
+      return
+    }
+    const apply = (signedIn: boolean) => {
+      setAuth(signedIn ? 'in' : 'out')
+      if (signedIn) void startCloud()
+    }
+    void supabase.auth.getSession().then(({ data }) => apply(!!data.session))
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => apply(!!session))
+    return () => data.subscription.unsubscribe()
+  }, [])
+
+  if (auth === 'loading') return null
+  return auth === 'in' ? <App /> : <Login />
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Root />
+  </StrictMode>,
+)
