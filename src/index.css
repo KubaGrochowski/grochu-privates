@@ -64,6 +64,14 @@
   box-sizing: border-box;
 }
 
+/* Bez przybliżania na telefonie: touch-action nie przechodzi przez przewijane obszary
+   (np. okienko kafelka), więc ustawiamy je na każdym elemencie. Przewijanie działa. */
+*,
+*::before,
+*::after {
+  touch-action: pan-x pan-y;
+}
+
 html,
 body {
   margin: 0;

@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { Login } from './components/Login'
 import { startCloud } from './lib/cloud'
 import { supabase } from './lib/supabase'
+import { registerSW } from 'virtual:pwa-register'
 
 /** Bez Supabase: aplikacja lokalna. Z Supabase: najpierw logowanie, potem synchronizacja. */
 function Root() {
@@ -31,16 +32,30 @@ function Root() {
 // Bez przybliżania na telefonie. iOS pomija `user-scalable=no` z meta viewport,
 // więc blokujemy gest szczypania (gesturestart/…) i ruch dwoma palcami.
 const stop = (e: Event) => e.preventDefault()
-document.addEventListener('gesturestart', stop, { passive: false })
-document.addEventListener('gesturechange', stop, { passive: false })
-document.addEventListener('gestureend', stop, { passive: false })
-document.addEventListener(
+for (const type of ['gesturestart', 'gesturechange', 'gestureend']) {
+  window.addEventListener(type, stop, { passive: false, capture: true })
+}
+window.addEventListener(
   'touchmove',
   (e) => {
     if (e.touches.length > 1) e.preventDefault()
   },
-  { passive: false },
+  { passive: false, capture: true },
 )
+// podwójne stuknięcie (zapas dla starszych iOS, które ignorują touch-action)
+let lastTap = 0
+window.addEventListener(
+  'touchend',
+  (e) => {
+    const now = Date.now()
+    if (now - lastTap < 300 && !(e.target instanceof HTMLInputElement)) e.preventDefault()
+    lastTap = now
+  },
+  { passive: false, capture: true },
+)
+
+// Nowa wersja aplikacji wczytuje się od razu (a nie dopiero przy którymś kolejnym uruchomieniu)
+registerSW({ immediate: true })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
