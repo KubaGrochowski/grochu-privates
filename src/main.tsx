@@ -28,6 +28,20 @@ function Root() {
   return auth === 'in' ? <App /> : <Login />
 }
 
+// Bez przybliżania na telefonie. iOS pomija `user-scalable=no` z meta viewport,
+// więc blokujemy gest szczypania (gesturestart/…) i ruch dwoma palcami.
+const stop = (e: Event) => e.preventDefault()
+document.addEventListener('gesturestart', stop, { passive: false })
+document.addEventListener('gesturechange', stop, { passive: false })
+document.addEventListener('gestureend', stop, { passive: false })
+document.addEventListener(
+  'touchmove',
+  (e) => {
+    if (e.touches.length > 1) e.preventDefault()
+  },
+  { passive: false },
+)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Root />

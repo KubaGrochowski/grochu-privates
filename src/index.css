@@ -67,6 +67,10 @@
 html,
 body {
   margin: 0;
+  /* bez przybliżania podwójnym stuknięciem; przewijanie działa normalnie */
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -1011,6 +1015,11 @@ h1 {
 /* ---------- Telefon ---------- */
 
 @media (max-width: 720px) {
+  /* iPhone przybliża stronę po stuknięciu w pole tekstowe z czcionką < 16 px */
+  .field input {
+    font-size: 16px;
+  }
+
   /* env(safe-area-inset-*) — miejsce na wycięcie i pasek gestów iPhone'a */
   .page {
     padding: calc(40px + env(safe-area-inset-top)) 16px calc(64px + env(safe-area-inset-bottom));
