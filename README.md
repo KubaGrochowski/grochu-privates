@@ -32,4 +32,4 @@ usunięte usuwa. Na Dysku nic nie jest zmieniane — tylko odczyt.
 
 ## Ikony
 
-`node scripts/make-icons.mjs` generuje ikony z `scripts/icon-source.svg` do `public/icons/`.
+`node scripts/make-icons.mjs` generuje favicon i ikony z `scripts/icon-source.png` do `public/`.
