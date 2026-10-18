@@ -136,6 +136,9 @@ h1 {
 
 .tile {
   position: relative;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
   grid-column: span 3;
   min-height: 280px;
   display: flex;
@@ -150,7 +153,7 @@ h1 {
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-button.tile:hover {
+.tile[role='button']:hover {
   box-shadow: var(--shadow-lift);
   border-color: var(--line-strong);
 }
@@ -255,6 +258,9 @@ button.tile:hover {
   display: flex;
   gap: 4px;
   height: 8px;
+  /* Safari (iPhone) w kafelku-przycisku nie rozciąga pustych elementów — szerokość wprost */
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .seg {
@@ -309,6 +315,8 @@ button.tile:hover {
   display: flex;
   gap: 3px;
   height: 8px;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .empty-bar {
@@ -893,6 +901,7 @@ button.tile:hover {
   position: relative;
   width: 100%;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .chart svg {

@@ -28,9 +28,18 @@ function Tile({
   children: ReactNode
 }) {
   return (
-    <motion.button
+    // div z rolą przycisku, nie <button>: Safari na iPhonie źle układa flex wewnątrz <button>
+    <motion.div
       className="tile"
+      role="button"
+      tabIndex={0}
       onClick={() => onOpen(id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onOpen(id)
+        }
+      }}
       style={{ borderRadius: 28 }}
       initial={{ opacity: 0, y: 24 }}
       animate={{
@@ -46,7 +55,7 @@ function Tile({
       <span className="tile-arrow" aria-hidden>
         <ArrowUpRight size={16} />
       </span>
-    </motion.button>
+    </motion.div>
   )
 }
 
